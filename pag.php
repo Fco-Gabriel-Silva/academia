@@ -1,6 +1,6 @@
 <?php 
-require_once 'aluno.php';
-$p = new Aluno("academia", "localhost", "root", "mint"); 
+require_once 'professor.php';
+$p = new Professor("academia", "localhost", "root", "mint"); 
 ?>
 
 <html lang="pt-br">
@@ -18,14 +18,13 @@ if (isset($_POST['nome'])) {
     if(isset($_GET['cpf_up']) && !empty($_GET['cpf_up'])){
         $cpf_upd = addslashes($_GET['cpf_up']);
         $nome = addslashes($_POST['nome']);
-        $telefone = addslashes($_POST['telefone']);
         $email = addslashes($_POST['email']);
-        $sexo = addslashes($_POST['sexo']);
-        $endereco = addslashes($_POST['endereco']);
-        if (!empty($nome) && !empty($telefone) && !empty($email) && !empty($sexo) && !empty($endereco)) { 
+        $d_nascimento = addslashes($_POST['d_nascimento']);
+        $salario = addslashes($_POST['salario']);
+        if (!empty($nome) && !empty($email) && !empty($d_nascimento) && !empty($salario)) { 
             // Editar
-            $p->atualizarDados($cpf_upd, $nome, $telefone, $email, $endereco, $sexo );
-            header("location: pag.php");
+            $p->atualizarDados($cpf_upd, $nome, $email, $d_nascimento, $salario);
+            header("location: pg.php");
         } else {
             echo "Preencha todos os campos";
         } 
@@ -33,13 +32,12 @@ if (isset($_POST['nome'])) {
     } else {
         $cpf = addslashes($_POST['cpf']);
         $nome = addslashes($_POST['nome']);
-        $telefone = addslashes($_POST['telefone']);
         $email = addslashes($_POST['email']);
-        $sexo = addslashes($_POST['sexo']);
-        $endereco = addslashes($_POST['endereco']);
-        if (!empty($cpf) && !empty($nome) && !empty($telefone) && !empty($email) && !empty($sexo) && !empty($endereco)) { 
+        $d_nascimento = addslashes($_POST['d_nascimento']);
+        $salario = addslashes($_POST['salario']);
+        if (!empty($cpf) && !empty($nome) && !empty($email) && !empty($d_nascimento) && !empty($salario)) { 
             // Cadastrar
-            if (!$p->cadastrar( $cpf ,$nome, $telefone, $email, $endereco, $sexo )){ 
+            if (!$p->cadastrar($cpf ,$nome, $email, $d_nascimento, $salario )){ 
                 echo "CPF já está cadastrado!";
             }
         } else {
@@ -50,7 +48,7 @@ if (isset($_POST['nome'])) {
 
 if(isset($_GET['cpf_up'])) { 
     $cpf_update = addslashes($_GET['cpf_up']);
-    $res = $p->buscarDadosAluno($cpf_update);
+    $res = $p->buscarDadosProfessor($cpf_update);
 } else {
     $res = null;
 }
@@ -58,23 +56,17 @@ if(isset($_GET['cpf_up'])) {
 
 <section id="esquerda">
     <form method="POST">
-        <h2><?php echo isset($res) ? "Atualizar Pessoa" : "Cadastrar Pessoa"; ?></h2>
-        <label for="nome">Nome</label>
-        <input type="text" name="nome" id="nome" value="<?php if(isset($res)){echo $res['nome'];}?>">
-        <label for="telefone">Telefone</label>
-        <input type="text" name="telefone" id="telefone" value="<?php if(isset($res)){echo $res['telefone'];}?>">
-        <label for="email">E-mail</label>
-        <input type="email" name="email" id="email" value="<?php if(isset($res)){echo $res['email'];}?>">
-        <label for="sexo">sexo</label>
-        <select name="sexo" id="sexo" value="<?php if(isset($res)){echo $res['sexo'];}?>">
-        <option value="F">Feminino</option>
-        <option value="M">Masculino</option>
-        <option value="O">Outro</option>
-        </select>
+        <h2><?php echo isset($res) ? "Atualizar Professor" : "Cadastrar Professor"; ?></h2>
         <label for="cpf">CPF</label>
-        <input type="text" name="cpf" id="cpf" value="<?php if(isset($res)){echo $res['cpf'];}?>">
-        <label for="endereco">Endereço</label>
-        <input type="text" name="endereco" id="endereco" value="<?php if(isset($res)){echo $res['endereco'];}?>">
+        <input type="number" name="cpf" id="cpf" value="<?php if(isset($res)){echo $res['cpf'];}?>" required>
+        <label for="nome">Nome</label>
+        <input type="text" name="nome" id="nome" value="<?php if(isset($res)){echo $res['nome'];}?>" required>
+        <label for="email">E-mail</label>
+        <input type="email" name="email" id="email" value="<?php if(isset($res)){echo $res['email'];}?>" required>
+        <label for="endereco">Data de Nascimento</label>
+        <input type="date" name="d_nascimento" id="d_nascimento" value="<?php if(isset($res)){echo $res['d_nascimento'];}?>" required>
+        <label for="salario">Salário</label>
+        <input type="number" name="salario" id="salario" value="<?php if(isset($res)){echo $res['salario'];}?>" required>
         <input type="submit" value="<?php echo isset($res) ? "Atualizar" : "Cadastrar"; ?>">
     </form>
 </section>
@@ -83,10 +75,9 @@ if(isset($_GET['cpf_up'])) {
     <table>
         <tr id="titulo"> 
             <td>Nome</td>
-            <td>Endereço</td>
-            <td>Telefone</td>
-            <td>E-mail</td>
-            <td>Sexo</td>
+            <td>Email</td>
+            <td>Data de Nascimento</td>
+            <td>Salario</td>
             <td></td>
         </tr>
 
@@ -102,8 +93,8 @@ if(isset($_GET['cpf_up'])) {
                 }
                 ?>
                 <td>
-                   <a href="pag.php?cpf_up=<?php echo $dados[$i]['cpf'] ?>">Editar</a>
-                    <a href="pag.php?cpf=<?php echo $dados[$i]['cpf'] ?>">Excluir</a>
+                    <a href="pg.php?cpf_up=<?php echo $dados[$i]['cpf'] ?>">Editar</a>
+                    <a href="pg.php?cpf=<?php echo $dados[$i]['cpf'] ?>">Excluir</a>
                 </td>
                 <?php
                 echo "</tr>";
@@ -121,6 +112,6 @@ if(isset($_GET['cpf_up'])) {
 if(isset($_GET['cpf'])) { 
     $cpf = addslashes($_GET['cpf']);
     $p->excluir($cpf); 
-    header("location: pag.php"); 
+    header("location: pg.php"); 
 }
 ?>
